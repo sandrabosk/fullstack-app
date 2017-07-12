@@ -1,0 +1,23 @@
+<% if(travelplans.length === 0){ %>
+  <h2> You don't have Travel plans yet</h2>
+  <a href="/travelplans/new">
+    Create a new travel plan
+  </a>
+<% }  else { %>
+  <h2> Your travel plans </h2>
+
+  <% if(successMessage.length > 0){ %>
+    <div class="success"> <%= successMessage %> </div>
+  <% } %>
+
+    <ul>
+      <% travelplans.forEach((oneTravelPlan)=>{ %>
+        <li>
+          <h3> <%= oneTravelPlan. name %></h3>
+          <p><%= oneTravelPlan. description %></p>
+          <img src="<%= oneTravelPlan.photoAddress %>">
+        </li>
+      <% }) %>
+    </ul>
+<% }%>
+<a href="/rooms/new"> Create a travel plan </a>

@@ -1,0 +1,32 @@
+<form action="/travelplans/<%= travelplan._id%>/edit" method="post">
+  <label for="country-input"> Country </label>
+  <input  id="country-input" type="text" name="country" value="<%= travelplan.country %>">
+    <br>
+
+    <label for="city-input"> City </label>
+    <input  id="city-input" type="text" name="city" value="<%= travelplan.city %>">
+      <br>
+    <label for="start-date-input"> Start date </label>
+    <input  id="start-date-input" type="date" name="startDate">
+      <br>
+    <label for="end-date-input"> End date </label>
+    <input  id="end-date-input" type="date" name="endDate">
+      <br>
+    <label for="accomodation-input"> Accomodation </label>
+    <input  id="accomodation-input" type="text" name="accomodation" placeholder="accomodation">
+      <br>
+    <label for="transportation-input"> Transportation </label>
+    <input  id="transportation-input" type="text" name="transportation" placeholder="transportation">
+      <br>
+    <label for="tourAttractions-input"> Tourist attractions </label>
+    <input  id="tourAttractions-input" type="text" name="tourAttractions" placeholder="tourist attractions">
+      <br>
+
+
+  <label for="notes-input"> Notes </label>
+  <textarea id="notes-input" name="travelNotes" placeholder="notes go here"></textarea>
+    <br>
+
+
+  <button> Save Travel Plan </button>
+</form>
