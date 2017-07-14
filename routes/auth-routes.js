@@ -8,7 +8,8 @@ const authRoutes = express.Router();
 
 authRoutes.get('/signup',
   ensure.ensureNotLoggedIn('/'), // <-- page(s) who see not logged in users
-  (req, res, next)=>{ res.render('auth/signup-view.ejs');
+  (req, res, next)=>{
+    res.render('auth/signup-view.ejs');
   });
 
 //receiving and processing form
@@ -47,7 +48,8 @@ authRoutes.post('/signup',
 
         //create theUser
       const theUser = new User({
-        name: req.body.signupName,
+        firstName: req.body.signupName,
+        lastName: req.body.signupLastname,
         username:req.body.signupUsername,
         encryptedPassword: hashPass
       });

@@ -76,6 +76,9 @@ app.use ('/', myUserRoutes);
 const myTravelPlanRoutes = require('./routes/travelPlan-routes.js');
 app.use('/', myTravelPlanRoutes);
 
+const myCustomPlanRoutes = require('./routes/customPlan-routes.js');
+app.use('/', myCustomPlanRoutes);
+
 // ---------------------------------
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

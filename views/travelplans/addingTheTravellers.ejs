@@ -1,0 +1,9 @@
+<h2> Add your fellow travellers </h2>
+
+<form action="/travelplans/<%= travelplan._id%>/addfriends" method="post">
+  <label for="frName"> Friend's name</label>
+  <input id="frName" type="text" name="frName" value="Friend's name">
+  <label for="frLastName"> Friend's name</label>
+  <input id="frLastName" type="text" name="frLastName" value="Friend's lastname">
+  <button type="submit" name="button">Add friend</button>
+</form>
