@@ -1,0 +1,9 @@
+<h2> Add Attendants </h2>
+
+<form action="/customplans/<%= customplan._id%>/addpeople" method="post">
+  <label for="frName"> Attendant's name</label>
+  <input id="frName" type="text" name="frName" value="Attendant's name">
+  <label for="frLastName"> Attendant's lastname</label>
+  <input id="frLastName" type="text" name="frLastName" value="Attendant's lastname">
+  <button type="submit" name="button">Add</button>
+</form>

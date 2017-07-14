@@ -88,24 +88,24 @@ router.get('/customplans/:id', (req, res, next) => {
           res.json(err);
           return;
         }
-        // res.json(customplan);
+        res.json(customplan);
 
-    res.render('customplans/edit-customplan-view.ejs', { customplan: customplan });
+    // res.render('customplans/edit-customplan-view.ejs', { customplan: customplan });
   });
 });
 
-router.put('/customplans/:id/edit', (req, res, next) => {
+router.post('/customplans/:id/edit', (req, res, next) => {
   console.log('=================');
 
     const customplanId = req.params.id;
     const customplanChanges = {
       place: req.body.place,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      topic: req.body.topic,
+      startDate:   req.body.startDate,
+      endDate:     req.body.endDate,
+      topic:       req.body.topic,
       description: req.body.description,
       customNotes: req.body.customNotes,
-      planner: req.user._id
+      planner:     req.user._id
         };
 
     CustomPlan.findByIdAndUpdate(customplanId, customplanChanges, (err, customplan) => {
@@ -117,6 +117,86 @@ router.put('/customplans/:id/edit', (req, res, next) => {
         });
 });
 // ============ end edit =================
+
+// ============ adding the friends ============
+
+router.get('/customplans/:id/addpeople', (req, res, next) => {
+  const customplanId = req.params.id;
+  CustomPlan.findById(customplanId, (err, customplan) => {
+    if (err) {
+      res.json(err);
+      return;
+    }
+    res.render('customplans/addPeople.ejs', { customplan: customplan });
+
+  });
+});
+
+
+router.post('/customplans/:id/addpeople', (req, res, next) => {
+  const customplanId = req.params.id;
+  const frName = req.body.frName;
+  const frLastName = req.body.frLastName;
+  User.find({firstName:frName } && {lastName: frLastName }, (err, foundUser) => {
+    if(err){
+      res.json(err);
+      return;
+    }
+console.log('=============================');
+    console.log(foundUser);
+    console.log('friends name: ', frName);
+    console.log('foundUser name: ', foundUser[0].firstName);
+    console.log('=======================');
+
+if (foundUser) {
+  CustomPlan.findById(customplanId, (err, theCustomplan)=>{
+    theCustomplan.whoIsAttending.push(foundUser);
+    theCustomplan.save((err)=>{
+      if(err){
+          res.json(err);
+          return;
+        }
+    });
+  });
+
+//this creates new travelplan
+// let newFriend = new TravelPlan();
+
+
+// newFriend.travelFriends.push(foundUser);
+
+      res.json({
+        message: 'You just added a person.',
+        name: foundUser[0].firstName
+      });
+      return;
+    }
+  });
+});
+// ============ end adding the friends ============
+
+
+
+
+// ============== delete ========================
+
+router.delete('/customplans/:id/delete', (req, res, next)=>{
+  const customplanId = req.params.id;
+  CustomPlan.findByIdAndRemove(customplanId, (err, theCustomPlan)=>{
+    if(err){
+      res.json(err);
+      // next(err);
+      return;
+    }
+    res.json({
+    message: 'Plan has been removed.',
+    id: theCustomPlan._id
+    });
+
+    // res.redirect('/trips');
+  });
+});
+// ============== end delete ========================
 
 
 module.exports = router;

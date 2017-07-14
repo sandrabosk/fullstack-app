@@ -90,24 +90,33 @@ router.get('/travelplans/:id', (req, res, next) => {
           res.json(err);
           return;
         }
+
+        // ===============
+
+        // if (travelplan) {
+        //   User.findById();
+        //
+        // }
+
+        // ===============
         res.json(travelplan);
 
     // res.render('travelplans/edit-travelplan-view.ejs', { travelplan: travelplan });
   });
 });
 
-router.put('/travelplans/:id/edit', (req, res, next) => {
+router.post('/travelplans/:id/edit', (req, res, next) => {
     const travelplanId = req.params.id;
     const travelplanChanges = {
-      country:req.body.country,
-      city: req.body.city,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      tourAttractions:req.body.tourAttractions,
-      accomodation: req.body.accomodation,
-      transportation: req.body.transportation,
-      tripPlanner: req.user._id,
-      travelNotes:req.body.travelNotes
+      country:         req.body.country,
+      city:            req.body.city,
+      startDate:       req.body.startDate,
+      endDate:         req.body.endDate,
+      tourAttractions: req.body.tourAttractions,
+      accomodation:    req.body.accomodation,
+      transportation:  req.body.transportation,
+      tripPlanner:     req.user._id,
+      travelNotes:     req.body.travelNotes
         };
 
     TravelPlan.findByIdAndUpdate(travelplanId, travelplanChanges, (err, travelplan) => {
@@ -162,6 +171,28 @@ if (foundUser) {
     });
   });
 
+  if (foundUser) {
+    TravelPlan.findById(travelplanId, (err, travelplan)=>{
+      foundUser[0].myPlans.push(travelplan);
+      console.log('==========================================');
+      console.log(foundUser[0].myPlans);
+
+      foundUser[0].save((err)=>{
+        if(err){
+            res.json(err);
+            return;
+          }
+      });
+
+    });
+
+  }
+
+
+
+
+
+
 //this creates new travelplan
 // let newFriend = new TravelPlan();
 
@@ -177,6 +208,18 @@ if (foundUser) {
   });
 });
 // ============ end adding the friends ============
+
+// ============ adding the comments on notes ======
+
+router.get('/travelplans/:id');
+
+
+
+
+
+
+// ============ end adding the comments on notes ======
+
 
 // ============== delete ========================
 
