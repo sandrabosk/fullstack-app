@@ -228,28 +228,17 @@ router.get('/travelplans/:id/addnotes',(req, res, next)=>{
         }
       });
 
-
-      // User.findById(theTravelPlan.travelFriends,(err, theUser)=>{
-      //   if (err) {
-      //     res.json(err);
-      //     return;
-      //   }
-        // if (theUser) {
           res.render('travelplans/notes-view.ejs',{
-            // users:theUser
             isUserFriend: isUserThere,
             travelplan: theTravelPlan,
             user: req.user
           });
-        // }
-      // });
-
-    }
-  });
+          }
+      });
 
 
 });
-//
+
 router.post('/travelplans/:id/notes',(req, res, next)=>{
   const travelplanId = req.params.id;
   TravelPlan.findById(travelplanId, (err, theTravelPlan)=>{
@@ -274,11 +263,6 @@ router.post('/travelplans/:id/notes',(req, res, next)=>{
   });
 });
 
-
-
-
-
-
 // ============ end adding the comments on notes ======
 
 
@@ -301,5 +285,43 @@ router.delete('/travelplans/:id/delete', (req, res, next)=>{
   });
 });
 // ============== end delete ========================
+// ============== search ===========================
+
+router.get('/travelplans/:id/notes/search', (req, res, next)=>{
+  const travelplanId = req.params.id;
+  TravelPlan.findById(travelplanId, (err, theTravelPlan)=>{
+    if (err) {
+      res.json(err);
+      return;
+    }
+    if (theTravelPlan) {
+      const searchTerm = req.query.searchTerm;
+
+      console.log('~~~~~~~~~~~~~~~');
+      console.log(searchTerm);
+      const searchRegex = new RegExp(searchTerm, 'i');
+      Comment.find(
+        { 'content': searchRegex },
+        (err, searchResults)=>{
+          if (err) {
+            res.json(err);
+            return;
+          }
+          res.render('travelplans/travelplan-search-view.ejs',{
+            comments:searchResults,
+            travelplan: theTravelPlan
+          });
+        }
+      );
+    }
+  });
+});
+
+
+// ============== end search ========================
+
+
+
+
 
 module.exports = router;

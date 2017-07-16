@@ -1,0 +1,18 @@
+<h3> Search </h3>
+
+<form method="get" action="/travelplans/<%=travelplan._id %>/notes/search">
+  <input id="search-term-input" type="search" name="searchTerm" value="Search...">
+  <button> Search </button>
+</form>
+
+<% if (typeof comments !== 'undefined'){ %>
+<h4> Results: </h4>
+<ul>
+  <% comments.forEach((oneComment)=>{ %>
+    <li>
+      <p> <%= oneComment.content %> </p>
+    </li>
+  <% }) %>
+
+</ul>
+<% } %>
