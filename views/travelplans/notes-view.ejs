@@ -1,0 +1,9 @@
+<h2> give reactions to notes</h2>
+<%if(typeof isUserFriend !== undefined){%>
+
+<form action="/travelplans/<%= travelplan._id%>/notes" method="post">
+  <label> Comment by <%= user.firstName %> <%= user.lastName %> </label>
+  <input id="content" type="text" name="content" value="what's on your mind?">
+  <button type="submit" name="button">Add</button>
+</form>
+<% } %>

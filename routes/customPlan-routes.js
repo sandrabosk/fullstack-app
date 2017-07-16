@@ -119,6 +119,8 @@ router.post('/customplans/:id/edit', (req, res, next) => {
 // ============ end edit =================
 
 // ============ adding the friends ============
+// ============ adding the customplans to myPlan's array ============
+
 
 router.get('/customplans/:id/addpeople', (req, res, next) => {
   const customplanId = req.params.id;
@@ -150,7 +152,7 @@ console.log('=============================');
 
 if (foundUser) {
   CustomPlan.findById(customplanId, (err, theCustomplan)=>{
-    theCustomplan.whoIsAttending.push(foundUser);
+    theCustomplan.whoIsAttending.push(foundUser[0].firstName && foundUser[0].lastName);
     theCustomplan.save((err)=>{
       if(err){
           res.json(err);
@@ -159,11 +161,18 @@ if (foundUser) {
     });
   });
 
-//this creates new travelplan
-// let newFriend = new TravelPlan();
+if (foundUser) {
+  CustomPlan.findById(customplanId,(err,customplan)=>{
+    foundUser[0].myCustomPlans.push(customplan);
+    foundUser[0].save((err)=>{
+      if (err) {
+        res.json(err);
+        return;
+      }
+    });
+  });
 
-
-// newFriend.travelFriends.push(foundUser);
+}
 
       res.json({
         message: 'You just added a person.',

@@ -21,7 +21,9 @@ const userSchema = new Schema(
     username: { type: String },
     encryptedPassword: { type: String },
     fav: { type: String },
-    myPlans:[],
+    myTravelPlans:[],
+    myCustomPlans:[],
+
 
     //login with facebook users
     facebookID: { type: String },

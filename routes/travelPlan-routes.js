@@ -4,6 +4,8 @@ const ensure = require('connect-ensure-login');
 const path = require('path');
 
 const User = require('../models/user-model.js');
+const Comment = require('../models/comment-model.js');
+
 
 
 const TravelPlan = require('../models/travelPlan-model.js');
@@ -131,6 +133,8 @@ router.post('/travelplans/:id/edit', (req, res, next) => {
 
 
 // ============ adding the friends ============
+// ============ adding the travelplans to myPlan's array ============
+
 
 router.get('/travelplans/:id/addfriends', (req, res, next) => {
   const travelplanId = req.params.id;
@@ -149,7 +153,7 @@ router.post('/travelplans/:id/addfriends', (req, res, next) => {
   const travelplanId = req.params.id;
   const frName = req.body.frName;
   const frLastName = req.body.frLastName;
-  User.find({firstName:frName } && {lastName: frLastName }, (err, foundUser) => {
+  User.findOne({firstName:frName } && {lastName: frLastName }, (err, foundUser) => {
     if(err){
       res.json(err);
       return;
@@ -157,7 +161,7 @@ router.post('/travelplans/:id/addfriends', (req, res, next) => {
 console.log('=============================');
     console.log(foundUser);
     console.log('friends name: ', frName);
-    console.log('foundUser name: ', foundUser[0].firstName);
+    // console.log('foundUser name: ', foundUser[0].firstName);
     console.log('=======================');
 
 if (foundUser) {
@@ -173,11 +177,11 @@ if (foundUser) {
 
   if (foundUser) {
     TravelPlan.findById(travelplanId, (err, travelplan)=>{
-      foundUser[0].myPlans.push(travelplan);
+      foundUser.myTravelPlans.push(travelplan);
       console.log('==========================================');
-      console.log(foundUser[0].myPlans);
+      console.log(foundUser.myPlans);
 
-      foundUser[0].save((err)=>{
+      foundUser.save((err)=>{
         if(err){
             res.json(err);
             return;
@@ -188,20 +192,9 @@ if (foundUser) {
 
   }
 
-
-
-
-
-
-//this creates new travelplan
-// let newFriend = new TravelPlan();
-
-
-// newFriend.travelFriends.push(foundUser);
-
       res.json({
         message: 'You just added a friend.',
-        name: foundUser[0].firstName
+        name: foundUser.firstName
       });
       return;
     }
@@ -211,7 +204,75 @@ if (foundUser) {
 
 // ============ adding the comments on notes ======
 
-router.get('/travelplans/:id');
+router.get('/travelplans/:id/addnotes',(req, res, next)=>{
+  const travelplanId = req.params.id;
+  TravelPlan.findById(travelplanId,(err, theTravelPlan)=>{
+    if (err) {
+      res.json(err);
+      return;
+    }
+    if (theTravelPlan) {
+
+      let isUserThere = false;
+      // console.log('the travel plan', theTravelPlan);
+
+      theTravelPlan.travelFriends.forEach((oneFriend) => {
+
+        console.log('===========================================');
+        console.log('oneFriend._id', oneFriend._id);
+        console.log('req.user._id', req.user._id);
+        console.log('===========================================');
+
+        if (oneFriend._id.toString() === req.user._id.toString()) {
+          isUserThere = true;
+        }
+      });
+
+
+      // User.findById(theTravelPlan.travelFriends,(err, theUser)=>{
+      //   if (err) {
+      //     res.json(err);
+      //     return;
+      //   }
+        // if (theUser) {
+          res.render('travelplans/notes-view.ejs',{
+            // users:theUser
+            isUserFriend: isUserThere,
+            travelplan: theTravelPlan,
+            user: req.user
+          });
+        // }
+      // });
+
+    }
+  });
+
+
+});
+//
+router.post('/travelplans/:id/notes',(req, res, next)=>{
+  const travelplanId = req.params.id;
+  TravelPlan.findById(travelplanId, (err, theTravelPlan)=>{
+    if (err) {
+      res.json(err);
+      return;
+    }
+    if (theTravelPlan) {
+      const newComment = new Comment({
+        commenter: req.user,
+        content:req.body.content
+      });
+      theTravelPlan.comment.push(newComment);
+      theTravelPlan.save((err)=>{
+        if (err) {
+            res.json(err);
+            return;
+        }
+        res.json(theTravelPlan);
+      });
+    }
+  });
+});
 
 
 
