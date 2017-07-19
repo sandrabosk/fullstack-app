@@ -10,20 +10,21 @@ const userSchema = new Schema(
     lastName: {type: String,
           // required: [true, 'Please insert your last name.']
     },
+    email: { type: String} ,
+    // username: { type: String },
+    encryptedPassword: { type: String,
+    required: true
+    },
     photo: {type: String,
       // default: '/img/happyTraveller.jpg'
     },
     dob: {type: Date, default: new Date()},
     gender: { type: String },
     profession: { type: String },
-    location: { type: String },
-    email: { type:String} ,
-    username: { type: String },
-    encryptedPassword: { type: String },
+    // location: { type: String },
     fav: { type: String },
     myTravelPlans:[],
     myCustomPlans:[],
-
 
     //login with facebook users
     facebookID: { type: String },

@@ -7,28 +7,37 @@ const User = require('../models/user-model.js');
 const authRoutes = express.Router();
 
 authRoutes.get('/signup',
-  ensure.ensureNotLoggedIn('/'), // <-- page(s) who see not logged in users
+  // ensure.ensureNotLoggedIn('/'), // <-- page(s) who see not logged in users
   (req, res, next)=>{
     res.render('auth/signup-view.ejs');
   });
 
-//receiving and processing form
-authRoutes.post('/signup',
+
+
+// ======== '/api/signup' =============
+
+authRoutes.post('/api/signup',
   (req, res, next)=>{
-  const signupUsername = req.body.signupUsername;
+  const signupFirstName = req.body.signupFirstName;
+  const signupLastName = req.body.signupLastName;
+  const signupEmail = req.body.signupEmail;
+  // const signupUsername = req.body.signupUsername;
   const signupPassword = req.body.signupPassword;
 
 //don't let users submit blank usernames or passwords
-  if (signupUsername === '' || signupPassword === ''){
-    res.status(400).json({ message: 'Provide username and password.' });
+  if (signupEmail === '' || signupPassword === ''){
+    res.status(400).json({ message: 'Please provide username and password.' });
     return;
   }
 
   User.findOne(
     //1st arg->criteria of the findOne(which documents)
-    {username: signupUsername },
+    // {username: signupUsername },
+    { email: signupEmail },
     //2nd arg -> projection (which fields)
-    {username:1},
+    // {username:1},
+    { email:1 },
+
     //3rd arg -> callback
     (err, foundUser) => {
       if (err){
@@ -38,7 +47,7 @@ authRoutes.post('/signup',
 
       //don't let user register if the username is taken
       if (foundUser){
-        res.status(400).json({ message: 'The username already exists.' });
+        res.status(400).json({ message: 'The user is already registered with that email.' });
         return;
       }
         //encrypt the password
@@ -48,25 +57,27 @@ authRoutes.post('/signup',
 
         //create theUser
       const theUser = new User({
-        firstName: req.body.signupName,
-        lastName: req.body.signupLastname,
-        username:req.body.signupUsername,
+        firstName: signupFirstName,
+        lastName: signupLastName,
+        // username:req.body.signupUsername,
+        email: signupEmail,
         encryptedPassword: hashPass
       });
 
         //save theUser
       theUser.save((err)=>{
         if (err){
-          res.status(500).json({ message: 'Something went wrong.' });
+          res.status(500).json({ message: 'Could not save the user in the database.' });
           return;
         }
 
 //==================
 req.login(theUser, (err) => {
       if (err) {
-        res.status(500).json({ message: 'Something went wrong.' });
+        res.status(500).json({ message: 'Login went wrong.' });
         return;
       }
+      // res.status(200).json(theUser);
 
       res.status(200).json(req.user);
        });
@@ -85,9 +96,8 @@ authRoutes.get('/login',
   });
 });
 
-authRoutes.post('/login',(req,res,next)=>{                     //  |
-    // ensure.ensureNotLoggedIn('/'),            //  |
-    passport.authenticate('local',(err, theUser, failureDetails)=>{  //<------------
+authRoutes.post('/api/login',(req,res,next)=>{
+    passport.authenticate('local',(err, theUser, failureDetails)=>{
     if (err) {
         res.status(500).json({ message: 'Something went wrong' });
         return;
@@ -100,7 +110,7 @@ authRoutes.post('/login',(req,res,next)=>{                     //  |
 
       req.login(theUser, (err) => {
         if (err) {
-          res.status(500).json({ message: 'Something went wrong' });
+          res.status(500).json({ message: 'Passport login went wrong' });
           return;
         }
 
@@ -115,13 +125,13 @@ authRoutes.post('/login',(req,res,next)=>{                     //  |
 
 // ================ LOG OUT ================== //
 
-authRoutes.get('/logout', (req, res, next)=>{
+authRoutes.post('/api/logout', (req, res, next)=>{
   req.logout();
   res.status(200).json({ message: 'Success.' });
 });
 // ================ END LOG OUT ================== //
 
-authRoutes.get('/loggedin', (req, res, next) => {
+authRoutes.get('/api/checklogin', (req, res, next) => {
   if (req.isAuthenticated()) {
     res.status(200).json(req.user);
     return;

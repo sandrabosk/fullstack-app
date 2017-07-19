@@ -3,7 +3,7 @@
 <% if (typeof errorMessage !== "undefined"){ %>
   <div class="error"> <%= errorMessage %> </div>
 <% } %>
-<form action="/signup" method="post">
+<form action="/api/signup" method="post">
   <label for="firstName-input"> First name: </label>
   <input id="firstName-input" type="text" name="signupName" value="Enter your name">
   <br>

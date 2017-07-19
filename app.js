@@ -40,7 +40,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(layouts);
-app.use(cors());
 
 //we add this line of code after installing express-session
 app.use(session({
@@ -53,6 +52,12 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(cors({
+  credentials: true,
+  origin: [ 'http://localhost:4200' ]
+}));
+
 
 app.use ((req, res, next)=>{
   if(req.user){

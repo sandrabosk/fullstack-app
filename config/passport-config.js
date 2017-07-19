@@ -119,18 +119,18 @@ passport.use(new GoogleStrategy(
 
   passport.use(new LocalStrategy(
     {
-      usernameField: 'username',
-      passwordField: 'password'
+      usernameField: 'loginEmail',
+      passwordField: 'loginPassword'
     },
-  ( loginUsername, loginPassword, next )=>{
-    User.findOne({ username: loginUsername },
+  ( loginEmail, loginPassword, next )=>{
+    User.findOne({ email: loginEmail },
       (err, theUser)=>{
         if (err){
           next(err);
           return;
         }
         if (!theUser){
-          next(null, false, {message: 'Incorrect username.'});
+          next(null, false, {message: 'Incorrect/invalid email.'});
           return;
         }
 
@@ -140,7 +140,7 @@ passport.use(new GoogleStrategy(
         }
 
         next(null, theUser, {
-          message: `Login for ${theUser.username} successful. 🏆`
+          message: `Login for ${theUser.email} successful.`
         });
       });
   }));

@@ -1,107 +1,60 @@
 const express      = require('express');
+const mongoose = require('mongoose');
+
 const ensure       = require('connect-ensure-login');
 const bcrypt       = require('bcrypt');
 
 const User         = require('../models/user-model.js');
+const multer     = require('multer');
+const upload     = multer({ dest: 'public/images/user-photos' });
 
 
 const routerThingy = express.Router();
 
-
-// routerThingy.get('/user/:id', (req, res, next) => {
-
-routerThingy.get('/profile/edit',
-
-    //     redirects to '/login' if you are NOT logged in
-    //                      |
+routerThingy.put('/profile/edit',
   ensure.ensureLoggedIn('/login'),
-
   (req, res, next) => {
-    // If not for 'ensureLoggedIn()' we would have to do this:
 
-    // if (!req.user) {
-    //   res.redirect('/login');
-    //   return;
-    // }
-
-    res.render('user/edit-profile-view.ejs', {
-      successMessage: req.flash('success')
-    });
-  }
-);
-
-// <form method="post" action="/profile/edit">
-routerThingy.post('/profile/edit',
-
-  ensure.ensureLoggedIn('/login'),
-
-  (req, res, next) => {
-    const profileName = req.body.profileName;
-    const profileUsername = req.body.profileUsername;
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+    const email = req.body.email;
     const currentPassword = req.body.profileCurrentPassword;
     const newPassword = req.body.profileNewPassword;
 
     User.findOne(
-      { username: profileUsername },
-      { username: 1 },
+      { email: email },
+      { email: 1 },
       (err, foundUser) => {
         if (err) {
           next(err);
           return;
         }
 
-        // if there's a user with the username and it's not you
-        if (foundUser && !foundUser._id.equals(req.user._id)) {
-          res.render('user/edit-profile-view.ejs', {
-            errorMessage: 'Username already taken. 😤'
-          });
-          return;
-        }
+      // add updates from form
+        req.user.firstName = req.body.firstName;
+        req.user.lastName = req.body.lastName;
+        req.user.email= req.body.email;
+        req.user.dob = req.body.dob;
+        req.user.gender = req.body.gender;
+        req.user.profession = req.body.profession;
+        req.user.fav = req.body.fav;
 
-        // const profileChanges = {
-        //   name: req.body.profileName,
-        //   username: req.body.profileUsername
-        // };
-
-        // add updates from form
-        req.user.name = req.body.profileName;
-        req.user.username = req.body.profileUsername;
-
-        // if both passwords are filled and the current password is correct
         if (currentPassword && newPassword && bcrypt.compareSync(currentPassword, req.user.encryptedPassword)) {
-          // add new encryptedPassword to the updates
           const salt = bcrypt.genSaltSync(10);
-          const hashPass = bcrypt.hashSync(newPassword, salt); //my comment: here we use new password
-          // profileChanges.encryptedPassword = hashPass;
+          const hashPass = bcrypt.hashSync(newPassword, salt);
           req.user.encryptedPassword = hashPass;
         }
 
         // save updates!
         req.user.save((err) => {
           if (err) {
-            next(err);
-            return;
-          }
+              res.status(500).json({ message: 'Something went wrong.' });
+              return;
+            }
+      res.status(200).json(req.user);
 
-          req.flash('success', 'Changes saved. 👻');
-
-          res.redirect('/profile/edit');
+          // res.redirect('/profile/edit');
         });
-
-        // User.findByIdAndUpdate(
-        //   req.user._id,
-        //   profileChanges,
-        //   (err, theUser) => {
-        //     if (err) {
-        //       next(err);
-        //       return;
-        //     }
-        //
-        //     req.flash('success', 'Changes saved. 👻');
-        //
-        //     res.redirect('/profile/edit');
-        //   }
-        // );
       }
     );
   }
@@ -127,27 +80,6 @@ routerThingy.get('/users', (req, res, next)=>{
     next();
   }
 });
-//
-// routerThingy.post('/users/:id/admin', (req, res, next)=>{
-//   if (req.user && req.user.role === 'admin'){
-//
-//   User.findByIdAndUpdate(
-//     req.params.id,
-//     {role:'admin'},
-//     (err, theUser) => {
-//       if(err){
-//         next(err);
-//         return;
-//       }
-//       req.flash('success', `User '${theUser.name}' is the admin now 😎`);
-//       res.redirect('/users');
-//     }
-//   );
-//   return;
-// }
-//   else{
-//     next();
-//   }
-// });
+
 
 module.exports = routerThingy;
