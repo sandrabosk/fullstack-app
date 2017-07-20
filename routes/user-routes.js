@@ -1,18 +1,19 @@
-const express      = require('express');
-const mongoose = require('mongoose');
+const express     = require('express');
+const mongoose    = require('mongoose');
 
-const ensure       = require('connect-ensure-login');
-const bcrypt       = require('bcrypt');
+const ensure      = require('connect-ensure-login');
+const bcrypt      = require('bcrypt');
 
-const User         = require('../models/user-model.js');
-const multer     = require('multer');
-const upload     = multer({ dest: 'public/images/user-photos' });
+const User        = require('../models/user-model.js');
+const multer      = require('multer');
+const upload      = multer({ dest: 'public/images/user-photos' });
+const loggedInApi = require('../lib/loggedInApi');
 
 
 const routerThingy = express.Router();
 
 routerThingy.put('/profile/edit',
-  ensure.ensureLoggedIn('/login'),
+  loggedInApi,
   (req, res, next) => {
 
     const firstName = req.body.firstName;
@@ -38,6 +39,7 @@ routerThingy.put('/profile/edit',
         req.user.gender = req.body.gender;
         req.user.profession = req.body.profession;
         req.user.fav = req.body.fav;
+        req.user.about = req.body.about;
 
         if (currentPassword && newPassword && bcrypt.compareSync(currentPassword, req.user.encryptedPassword)) {
           const salt = bcrypt.genSaltSync(10);
@@ -59,6 +61,56 @@ routerThingy.put('/profile/edit',
     );
   }
 );
+
+routerThingy.post('/api/uploadphoto', upload.single('file'), function(req, res){
+  // console.log('user', req.user._id);
+
+    console.log('req file', req.file);
+
+  //  const updates = {
+  //     firstName: req.body.firstName,
+  //     lastName: req.body.lastName,
+  //     email: req.body.email,
+  //     dob: req.body.dob,
+  //     gender: req.body.gender,
+  //     profession: req.body.profession,
+  //     fav: req.body.fav,
+  //     about: req.body.about
+  //  };
+   if (req.file !== undefined) {
+    //  updates.image = "http://localhost:3000/images/user-photos/"+req.file.filename;
+
+   User.findById(req.user._id, (err, theUser) =>{
+       if (err) {
+         return res.send(err);
+       }
+
+       theUser.image = "http://localhost:3000/images/user-photos/"+req.file.filename;
+       console.log('theUser.image', theUser.image);
+
+       theUser.save((err) => {
+         if (err) {
+             res.status(500).json({ message: 'Something went wrong.' });
+             return;
+           }
+                  return res.json({
+                    message:'Photo update went fine.',
+                    user: theUser
+                  });
+         // res.redirect('/profile/edit');
+       });
+     });
+}
+});
+
+
+
+
+
+
+
+
+
 
 routerThingy.get('/users', (req, res, next)=>{
   if(req.user && req.user.role === 'admin'){

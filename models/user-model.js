@@ -15,14 +15,15 @@ const userSchema = new Schema(
     encryptedPassword: { type: String,
     required: true
     },
-    photo: {type: String,
-      // default: '/img/happyTraveller.jpg'
+    image: {type: String,
+      default: ''
     },
     dob: {type: Date, default: new Date()},
     gender: { type: String },
     profession: { type: String },
     // location: { type: String },
     fav: { type: String },
+    about: { type: String },
     myTravelPlans:[],
     myCustomPlans:[],
 
