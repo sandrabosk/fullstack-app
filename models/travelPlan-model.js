@@ -13,11 +13,14 @@ const travelPlanSchema = new Schema(
     tourAttractions: [], // -> MY IDEA IS TO MAKE IT AN EMPTY ARRAY AND TO PUSH
     //DESTINATIONS INTO THAT ARRAY WHEN WE PUT MARKERS ON THE MAP? IS THAT DOABLE?
 
-    accomodation: {type: String},
+    accomodation: {
+      address: { type: String },
+      expense: { type: Number }
+    },
     transportation: { type: String },
 
     travelFriends:[],
-    travelPlanner: {type: Schema.Types.ObjectId },
+    planOwner: {type: Schema.Types.ObjectId },
 
     travelNotes:{ type: String},  // -> ARE NOTES SEPARATE MODEL SINCE THEY WILL HAVE IT'S
     //OWN NESTED COMPONENT AND USERS SHOULD BE ABLE TO COMMENT INTO IT

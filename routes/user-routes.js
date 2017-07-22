@@ -9,12 +9,12 @@ const multer      = require('multer');
 const upload      = multer({ dest: 'public/images/user-photos' });
 const loggedInApi = require('../lib/loggedInApi');
 
-
 const routerThingy = express.Router();
 
 routerThingy.put('/profile/edit',
   loggedInApi,
   (req, res, next) => {
+    console.log(req.user);
 
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
@@ -46,7 +46,6 @@ routerThingy.put('/profile/edit',
           const hashPass = bcrypt.hashSync(newPassword, salt);
           req.user.encryptedPassword = hashPass;
         }
-
         // save updates!
         req.user.save((err) => {
           if (err) {
@@ -54,62 +53,38 @@ routerThingy.put('/profile/edit',
               return;
             }
       res.status(200).json(req.user);
-
-          // res.redirect('/profile/edit');
         });
       }
     );
   }
 );
 
-routerThingy.post('/api/uploadphoto', upload.single('file'), function(req, res){
-  // console.log('user', req.user._id);
+routerThingy.post('/api/uploadphoto',loggedInApi, upload.single('file'), function(req, res){
+  console.log('user', req.user);
 
     console.log('req file', req.file);
 
-  //  const updates = {
-  //     firstName: req.body.firstName,
-  //     lastName: req.body.lastName,
-  //     email: req.body.email,
-  //     dob: req.body.dob,
-  //     gender: req.body.gender,
-  //     profession: req.body.profession,
-  //     fav: req.body.fav,
-  //     about: req.body.about
-  //  };
    if (req.file !== undefined) {
-    //  updates.image = "http://localhost:3000/images/user-photos/"+req.file.filename;
-
    User.findById(req.user._id, (err, theUser) =>{
        if (err) {
          return res.send(err);
        }
 
        theUser.image = "http://localhost:3000/images/user-photos/"+req.file.filename;
-       console.log('theUser.image', theUser.image);
 
        theUser.save((err) => {
          if (err) {
              res.status(500).json({ message: 'Something went wrong.' });
              return;
            }
-                  return res.json({
-                    message:'Photo update went fine.',
-                    user: theUser
-                  });
-         // res.redirect('/profile/edit');
+          return res.json({
+            message:'Photo update went fine.',
+            user: theUser
+          });
        });
      });
-}
+   }
 });
-
-
-
-
-
-
-
-
 
 
 routerThingy.get('/users', (req, res, next)=>{

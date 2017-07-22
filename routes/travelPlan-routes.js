@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const ensure = require('connect-ensure-login');
 const path = require('path');
+const loggedInApi = require('../lib/loggedInApi');
+
 
 const User = require('../models/user-model.js');
 const Comment = require('../models/comment-model.js');
@@ -12,71 +14,66 @@ const TravelPlan = require('../models/travelPlan-model.js');
 
 const router = express.Router();
 
-//creating travel plans
-router.get('/travelplans/new',
-//we need to be logged in to create plans
-  ensure.ensureLoggedIn('/login'),
-
-  (req, res, next)=>{
-    res.render('travelplans/new-travelplan-view.ejs');
-  }
-);
 // ================ drugo ======================== //
 
-router.get('/travelplans', (req, res, next) => {
-  TravelPlan.find((err, travelPlansList) =>{
-    if(err){
-      res.json(err);
-      return;
-    }
-    res.json(travelPlansList);
-  });
-});
-
-router.post('/travelplans',
-  // ensure.ensureLoggedIn('/login'),
+router.post('/api/travelplans',
+  loggedInApi,
   (req, res, next)=>{
     const theTravelPlan = new TravelPlan ({
+          planOwner: req.user,
           country:req.body.country,
           city: req.body.city,
           startDate: req.body.startDate,
           endDate: req.body.endDate,
           tourAttractions:req.body.tourAttractions,
-          accomodation: req.body.accomodation,
+          accomodation: {
+            address: req.body.address,
+            expense: req.body.expense
+          },
           transportation: req.body.transportation,
           tripPlanner: req.user._id,
           travelNotes:req.body.travelNotes
         });
+
+
+        //saving the plan
       theTravelPlan.save((err)=>{
         if(err){
           res.json(err);
           return;
         }
-        res.json({
-          message: 'Your travel plan was saved successfully.',
-          id: theTravelPlan._id
+
+        // adding the plan to the users myTravelplans array
+        req.user.myTravelPlans.push(theTravelPlan);
+
+          req.user.save((err)=>{
+            if (err){
+            res.send(err);
+            return;
+          }
+
+          res.json({
+            message: 'Your travel plan was saved successfully.',
+            id: theTravelPlan._id
+          });
+          });
+
         });
-      });
   }
 );
+
 // ==================== prvo =====================
 router.get('/api/travelplans',
-  // ensure.ensureLoggedIn(),
+  loggedInApi,
   (req, res, next)=>{
     TravelPlan.find(
-      {owner: req.user._id},
+      {planOwner: req.user._id},
       (err, travelPlansList) => {
         if(err){
-          // next(err);
           res.json(err);
           return;
         }
         res.json(travelPlansList);
-
-        // res.render('travelplans/travelplans-list-view.ejs',{
-        //   travelplans: travelPlansList,
-        //   successMessage: req.flash('success')
-        // });
       }
     );
   }
@@ -85,25 +82,20 @@ router.get('/api/travelplans',
 // ============ /:id =================
 // ============ edit =================
 
-router.get('/travelplans/:id', (req, res, next) => {
+router.get('/api/travelplans/:id', (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400)
+       .json({ message: 'Specified id is not valid' });
+    return;
+  }
     const travelplanId = req.params.id;
     TravelPlan.findById(travelplanId, (err, travelplan) => {
         if (err) {
           res.json(err);
           return;
         }
-
-        // ===============
-
-        // if (travelplan) {
-        //   User.findById();
-        //
-        // }
-
-        // ===============
         res.json(travelplan);
 
-    // res.render('travelplans/edit-travelplan-view.ejs', { travelplan: travelplan });
   });
 });
 
@@ -181,17 +173,14 @@ if (foundUser) {
       console.log('==========================================');
       console.log(foundUser.myPlans);
 
-      foundUser.save((err)=>{
-        if(err){
-            res.json(err);
-            return;
-          }
-      });
-
-    });
-
-  }
-
+          foundUser.save((err)=>{
+            if(err){
+                res.json(err);
+                return;
+              }
+          });
+        });
+      }
       res.json({
         message: 'You just added a friend.',
         name: foundUser.firstName
@@ -268,21 +257,28 @@ router.post('/travelplans/:id/notes',(req, res, next)=>{
 
 // ============== delete ========================
 
-router.delete('/travelplans/:id/delete', (req, res, next)=>{
-  const travelplanId = req.params.id;
-  TravelPlan.findByIdAndRemove(travelplanId, (err, theTravelPlan)=>{
+router.delete('/api/travelplans/:id', (req, res, next)=>{
+
+const travelplanId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400)
+       .json({ message: 'Specified id is not valid' });
+    return;
+  }
+
+  TravelPlan.remove({_id: travelplanId}, (err, theTravelPlan)=>{
     if(err){
       res.json(err);
-      // next(err);
       return;
     }
     res.json({
     message: 'Travel plan has been removed.',
     id: theTravelPlan._id
     });
-
-    // res.redirect('/trips');
   });
+  // find all users who have theTravelPlan (that is travelplanId) in
+  // their myTravelPlans array and remove it too.
 });
 // ============== end delete ========================
 // ============== search ===========================
@@ -319,6 +315,19 @@ router.get('/travelplans/:id/notes/search', (req, res, next)=>{
 
 
 // ============== end search ========================
+// ============ find all users ====================
+router.get('/api/users', (req, res, next)=>{
+
+  User.find((err, usersList)=>{
+    if(err){
+      res.json(err);
+      return;
+    }
+    res.json(usersList);
+  });
+});
+
+// ============ end of find all users =============
 
 
 

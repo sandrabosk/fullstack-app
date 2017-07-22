@@ -11,7 +11,6 @@ const userSchema = new Schema(
           // required: [true, 'Please insert your last name.']
     },
     email: { type: String} ,
-    // username: { type: String },
     encryptedPassword: { type: String,
     required: true
     },
@@ -21,7 +20,6 @@ const userSchema = new Schema(
     dob: {type: Date, default: new Date()},
     gender: { type: String },
     profession: { type: String },
-    // location: { type: String },
     fav: { type: String },
     about: { type: String },
     myTravelPlans:[],
