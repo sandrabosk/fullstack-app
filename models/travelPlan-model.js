@@ -19,7 +19,7 @@ const travelPlanSchema = new Schema(
     },
     transportation: { type: String },
 
-    travelFriends:[],
+    travelFriends:[{type: String}],
     planOwner: {type: Schema.Types.ObjectId },
 
     travelNotes:{ type: String},  // -> ARE NOTES SEPARATE MODEL SINCE THEY WILL HAVE IT'S

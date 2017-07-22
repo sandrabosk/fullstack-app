@@ -125,66 +125,70 @@ router.post('/travelplans/:id/edit', (req, res, next) => {
 
 
 // ============ adding the friends ============
+
+
+
+
 // ============ adding the travelplans to myPlan's array ============
 
+router.post('/api/travelplans/:id/addfriends', (req, res, next) => {
 
-router.get('/travelplans/:id/addfriends', (req, res, next) => {
+console.log(req.body);
   const travelplanId = req.params.id;
-  TravelPlan.findById(travelplanId, (err, travelplan) => {
-    if (err) {
-      res.json(err);
-      return;
-    }
-    res.render('travelplans/addingTheTravellers.ejs', { travelplan: travelplan });
+  const id = req.body.id;
 
-  });
-});
+  // const frName = req.body.firstName;
+  // const frLastName = req.body.lastName;
+  User.findById(id, (err, foundUser) => {
 
-
-router.post('/travelplans/:id/addfriends', (req, res, next) => {
-  const travelplanId = req.params.id;
-  const frName = req.body.frName;
-  const frLastName = req.body.frLastName;
-  User.findOne({firstName:frName } && {lastName: frLastName }, (err, foundUser) => {
+  // User.findOne({firstName:frName } && {lastName: frLastName }, (err, foundUser) => {
     if(err){
       res.json(err);
       return;
     }
 console.log('=============================');
-    console.log(foundUser);
-    console.log('friends name: ', frName);
+    console.log('FOUND USER',foundUser);
+    // console.log('friends name: ', frName);
     // console.log('foundUser name: ', foundUser[0].firstName);
     console.log('=======================');
 
 if (foundUser) {
+  console.log('foundUser.id', foundUser._id);
+
   TravelPlan.findById(travelplanId, (err, travelplan)=>{
-    travelplan.travelFriends.push(foundUser);
+
+    travelplan.travelFriends.push(foundUser._id);
+    foundUser.myTravelPlans.push(travelplan._id);
+
     travelplan.save((err)=>{
       if(err){
           res.json(err);
           return;
         }
+        foundUser.save((err)=>{
+                if(err){
+                    res.json(err);
+                    return;
+                  }
+                  res.json({
+                    message: 'You just added a friend.',
+                    // name: foundUser.firstName
+                  });
+              });
+
     });
   });
 
-  if (foundUser) {
-    TravelPlan.findById(travelplanId, (err, travelplan)=>{
-      foundUser.myTravelPlans.push(travelplan);
-      console.log('==========================================');
-      console.log(foundUser.myPlans);
+  // if (foundUser) {
+    // TravelPlan.findById(travelplanId, (err, travelplan)=>{
+    //
+    //   console.log('==========================================');
+    //   console.log(foundUser.myPlans);
+    //
+    //
+    //     });
+    //   }
 
-          foundUser.save((err)=>{
-            if(err){
-                res.json(err);
-                return;
-              }
-          });
-        });
-      }
-      res.json({
-        message: 'You just added a friend.',
-        name: foundUser.firstName
-      });
       return;
     }
   });
