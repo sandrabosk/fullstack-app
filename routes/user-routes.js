@@ -11,7 +11,7 @@ const loggedInApi = require('../lib/loggedInApi');
 
 const routerThingy = express.Router();
 
-routerThingy.put('/profile/edit',
+routerThingy.post('/api/profile/edit',
   loggedInApi,
   (req, res, next) => {
     console.log(req.user);

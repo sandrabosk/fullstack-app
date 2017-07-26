@@ -7,6 +7,7 @@ const loggedInApi = require('../lib/loggedInApi');
 
 const User = require('../models/user-model.js');
 const Comment = require('../models/comment-model.js');
+const MapLocation = require('../models/map-model.js');
 
 
 
@@ -55,9 +56,8 @@ router.post('/api/travelplans',
           res.json({
             message: 'Your travel plan was saved successfully.',
             id: theTravelPlan._id
+            });
           });
-          });
-
         });
   }
 );
@@ -89,14 +89,16 @@ router.get('/api/travelplans/:id', (req, res, next) => {
     return;
   }
     const travelplanId = req.params.id;
-    TravelPlan.findById(travelplanId, (err, travelplan) => {
+    TravelPlan
+      .findById(travelplanId)
+      .populate('travelFriends')
+      .exec((err, travelplan) => {
         if (err) {
           res.json(err);
           return;
         }
         res.json(travelplan);
-
-  });
+      });
 });
 
 router.post('/travelplans/:id/edit', (req, res, next) => {
@@ -113,21 +115,78 @@ router.post('/travelplans/:id/edit', (req, res, next) => {
       travelNotes:     req.body.travelNotes
         };
 
-    TravelPlan.findByIdAndUpdate(travelplanId, travelplanChanges, (err, travelplan) => {
+    TravelPlan.findByIdAndUpdate(travelplanId, travelplanChanges,
+      (err, travelplan) => {
         if (err){
           res.json(err);
           return;
-        }
-        res.json(travelplan);
+          }
+          res.json(travelplan);
         });
 });
 // ============ end edit =================
+// ============== maps ==================
+
+router.get('/api/travelplans/:id/maplocations', (req, res, next)=>{
+  const travelplanId = req.params.id;
+  TravelPlan.findById(travelplanId, (err, travelplan)=>{
+    if (err) {
+      next(err);
+      return;
+    }
+    MapLocation.find({travelplanId: travelplanId},(err, maplocations)=>{
+      if (err) {
+        next(err);
+        return;
+      }
+      res.json({travelplan: travelplan, maplocations: maplocations});
+      // res.render('travelplans/map-view.ejs', { travelplan: travelplan, maplocations: maplocations });
+    });
+    return;
+  });
+});
 
 
-// ============ adding the friends ============
+router.post('/api/travelplans/:id', (req, res, next)=>{
+  const travelplanId = req.params.id;
+  const newPoint = new MapLocation({
+    name: req.body.pointName,
+    address: req.body.pointAddress,
+    addCity: req.body.pointCity,
+    addCountry: req.body.pointCountry,
+    about: req.body.pointAbout,
+    travelplanId: travelplanId
+  });
+  newPoint.save((err)=>{
+    if (err){
+      res.json(err);
+      return;
+    }
+TravelPlan.findById(travelplanId, (err, travelplan)=>{
+  if(err){
+    res.json(err);
+    return;
+  }
+  travelplan.tourAttractions.push(newPoint._id);
+  travelplan.save((err)=>{
+    if(err){
+        res.json(err);
+        return;
+      }
+  });
+});
+    // res.redirect(`/travelplans/${travelplanId}/maplocations`);
+    res.json({
+      message:'New point saved',
+      id: newPoint._id
+    });
+  });
+});
+
+// ============== end maps ==================
 
 
-
+// ============ adding the friends  and ============
 
 // ============ adding the travelplans to myPlan's array ============
 
@@ -137,60 +196,41 @@ console.log(req.body);
   const travelplanId = req.params.id;
   const id = req.body.id;
 
-  // const frName = req.body.firstName;
-  // const frLastName = req.body.lastName;
   User.findById(id, (err, foundUser) => {
-
-  // User.findOne({firstName:frName } && {lastName: frLastName }, (err, foundUser) => {
     if(err){
       res.json(err);
       return;
     }
-console.log('=============================');
+    console.log('=============================');
     console.log('FOUND USER',foundUser);
-    // console.log('friends name: ', frName);
-    // console.log('foundUser name: ', foundUser[0].firstName);
-    console.log('=======================');
+    console.log('=============================');
 
-if (foundUser) {
-  console.log('foundUser.id', foundUser._id);
+  if (foundUser) {
+    console.log('foundUser.id', foundUser._id);
 
-  TravelPlan.findById(travelplanId, (err, travelplan)=>{
+    TravelPlan.findById(travelplanId, (err, travelplan)=>{
+      travelplan.travelFriends.push(foundUser._id);
+      foundUser.myTravelPlans.push(travelplan._id);
 
-    travelplan.travelFriends.push(foundUser._id);
-    foundUser.myTravelPlans.push(travelplan._id);
+      travelplan.save((err)=>{
+        if(err){
+            res.json(err);
+            return;
+          }
+          foundUser.save((err)=>{
+                  if(err){
+                      res.json(err);
+                      return;
+                    }
+                    res.json({
+                      data: foundUser,
+                    });
+                });
+            });
+          });
 
-    travelplan.save((err)=>{
-      if(err){
-          res.json(err);
-          return;
-        }
-        foundUser.save((err)=>{
-                if(err){
-                    res.json(err);
-                    return;
-                  }
-                  res.json({
-                    message: 'You just added a friend.',
-                    // name: foundUser.firstName
-                  });
-              });
-
-    });
-  });
-
-  // if (foundUser) {
-    // TravelPlan.findById(travelplanId, (err, travelplan)=>{
-    //
-    //   console.log('==========================================');
-    //   console.log(foundUser.myPlans);
-    //
-    //
-    //     });
-    //   }
-
-      return;
-    }
+        return;
+      }
   });
 });
 // ============ end adding the friends ============
@@ -228,8 +268,6 @@ router.get('/travelplans/:id/addnotes',(req, res, next)=>{
           });
           }
       });
-
-
 });
 
 router.post('/travelplans/:id/notes',(req, res, next)=>{
@@ -264,27 +302,68 @@ router.post('/travelplans/:id/notes',(req, res, next)=>{
 router.delete('/api/travelplans/:id', (req, res, next)=>{
 
 const travelplanId = req.params.id;
+const userId = req.user._id;
+console.log('travelplanId', travelplanId);
+// console.log('userId', userId);
 
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     res.status(400)
        .json({ message: 'Specified id is not valid' });
     return;
   }
+TravelPlan.findById(travelplanId, (err, foundPlan)=>{
+  if(err){
+    res.json(err);
+    return;
+  }
 
-  TravelPlan.remove({_id: travelplanId}, (err, theTravelPlan)=>{
-    if(err){
-      res.json(err);
-      return;
-    }
-    res.json({
-    message: 'Travel plan has been removed.',
-    id: theTravelPlan._id
-    });
+  // if (foundPlan) {
+    User.findById(userId, (err, planOwner)=>{
+      console.log("~~~~~~~~~~~~~~************", planOwner.myTravelPlans[0]._id);
+      console.log("~~~~~~~~~~~~~~************", planOwner.myTravelPlans[1]._id);
+
+      if(err){
+        res.json(err);
+        return;
+      }
+
+      planOwner.myTravelPlans.forEach((oneTravelplan, index)=>{
+        if (oneTravelplan._id === travelplanId) {
+          console.log('oneTravelplan', oneTravelplan);
+          console.log('travelplanId', travelplanId);
+          planOwner.myTravelPlans.splice(index, 1);
+        }
+      });
+
+        console.log('foundPlan', foundPlan);
+        if(err){
+          res.json(err);
+          return;
+        }
+        planOwner.save((err)=>{
+          if(err){
+            res.json(err);
+            return;
+          }
+        });
+      });
+  // }
+
+});
+TravelPlan.remove({_id: travelplanId}, (err, theTravelPlan)=>{
+  if(err){
+    res.json(err);
+    return;
+  }
+  res.json({
+  message: 'Travel plan has been removed.',
+  id: theTravelPlan._id
   });
-  // find all users who have theTravelPlan (that is travelplanId) in
-  // their myTravelPlans array and remove it too.
+});
+
 });
 // ============== end delete ========================
+
 // ============== search ===========================
 
 router.get('/travelplans/:id/notes/search', (req, res, next)=>{
@@ -330,11 +409,6 @@ router.get('/api/users', (req, res, next)=>{
     res.json(usersList);
   });
 });
-
 // ============ end of find all users =============
-
-
-
-
 
 module.exports = router;

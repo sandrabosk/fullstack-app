@@ -19,7 +19,7 @@ const travelPlanSchema = new Schema(
     },
     transportation: { type: String },
 
-    travelFriends:[{type: String}],
+    travelFriends:[{type: Schema.Types.ObjectId, ref: "User"}],
     planOwner: {type: Schema.Types.ObjectId },
 
     travelNotes:{ type: String},  // -> ARE NOTES SEPARATE MODEL SINCE THEY WILL HAVE IT'S
@@ -32,6 +32,10 @@ const travelPlanSchema = new Schema(
   }
 );
 
-const TravelPlan = mongoose.model('TravelPlan', travelPlanSchema);
 
+const TravelPlan = mongoose.model('TravelPlan', travelPlanSchema);
+travelPlanSchema.pre('remove', function(callback){
+  //Remove all the docs that refers
+  this.model('User').remove({travelplanId: this._id}, callback);
+});
 module.exports = TravelPlan;

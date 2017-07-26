@@ -6,14 +6,6 @@ const User = require('../models/user-model.js');
 
 const authRoutes = express.Router();
 
-authRoutes.get('/signup',
-  // ensure.ensureNotLoggedIn('/'), // <-- page(s) who see not logged in users
-  (req, res, next)=>{
-    res.render('auth/signup-view.ejs');
-  });
-
-
-
 // ======== '/api/signup' =============
 
 authRoutes.post('/api/signup',
@@ -59,7 +51,6 @@ authRoutes.post('/api/signup',
       const theUser = new User({
         firstName: signupFirstName,
         lastName: signupLastName,
-        // username:req.body.signupUsername,
         email: signupEmail,
         encryptedPassword: hashPass
       });
@@ -149,8 +140,6 @@ function gtfoIfNotLogged (req, res, next) {
 }
 
 // ================ SOCIAL LOG INS ================== //
-
-
 
 authRoutes.get('/auth/facebook',passport.authenticate('facebook'));
 authRoutes.get('/auth/facebook/callback', passport.authenticate('facebook',{
