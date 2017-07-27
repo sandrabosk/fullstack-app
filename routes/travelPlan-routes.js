@@ -92,8 +92,9 @@ router.get('/api/travelplans/:id', (req, res, next) => {
     TravelPlan
       .findById(travelplanId)
       .populate('travelFriends')
+      .populate('tourAttractions')
       .exec((err, travelplan) => {
-        console.log('TO from the list ==============', travelplan);
+        // console.log('TO from the list ==============', travelplan);
         if (err) {
           res.json(err);
           return;
@@ -128,25 +129,25 @@ router.post('/travelplans/:id/edit', (req, res, next) => {
 // ============ end edit =================
 // ============== maps ==================
 
-router.get('/api/travelplans/:id/maplocations', (req, res, next)=>{
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    res.status(400)
-       .json({ message: 'Specified id is not valid' });
-    return;
-  }
-  const travelplanId = req.params.id;
-  TravelPlan
-    .findById(travelplanId)
-    .populate('tourAttractions')
-    .exec((err, travelplan)=>{
-      console.log('************travelplan', travelplan);
-      if (err) {
-        next(err);
-        return;
-      }
-      res.json(travelplan);
-    });
-
+// router.get('/api/travelplans/:id/maplocations', (req, res, next)=>{
+//   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//     res.status(400)
+//        .json({ message: 'Specified id is not valid' });
+//     return;
+//   }
+//   const travelplanId = req.params.id;
+//   TravelPlan
+//     .findById(travelplanId)
+//     .populate('tourAttractions')
+//     .exec((err, travelplan)=>{
+//       console.log('************travelplan', travelplan);
+//       if (err) {
+//         next(err);
+//         return;
+//       }
+//       res.json(travelplan);
+//     });
+// });
 
 
 
@@ -164,7 +165,7 @@ router.get('/api/travelplans/:id/maplocations', (req, res, next)=>{
     // });
     // return;
   // });
-});
+
 
 
 router.post('/api/travelplans/:id', (req, res, next)=>{
