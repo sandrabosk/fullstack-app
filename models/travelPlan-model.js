@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Comment = require('./comment-model.js');
+const MapThings = require('./map-model.js');
+
 
 
 const travelPlanSchema = new Schema(
@@ -10,8 +12,7 @@ const travelPlanSchema = new Schema(
     startDate: {type: Date, default: new Date()},
     endDate: {type: Date, default: new Date()},
 
-    tourAttractions: [], // -> MY IDEA IS TO MAKE IT AN EMPTY ARRAY AND TO PUSH
-    //DESTINATIONS INTO THAT ARRAY WHEN WE PUT MARKERS ON THE MAP? IS THAT DOABLE?
+    tourAttractions: [{type: Schema.Types.ObjectId, ref: "MapThings"}],
 
     accomodation: {
       address: { type: String },
@@ -22,8 +23,7 @@ const travelPlanSchema = new Schema(
     travelFriends:[{type: Schema.Types.ObjectId, ref: "User"}],
     planOwner: {type: Schema.Types.ObjectId },
 
-    travelNotes:{ type: String},  // -> ARE NOTES SEPARATE MODEL SINCE THEY WILL HAVE IT'S
-    //OWN NESTED COMPONENT AND USERS SHOULD BE ABLE TO COMMENT INTO IT
+    travelNotes:{ type: String},
 
     comment: [Comment.schema]
   },

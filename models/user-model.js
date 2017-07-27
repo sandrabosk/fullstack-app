@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
-  //1st argument -> fields of documents
   {
     firstName: { type: String,
           // required: [true, 'Please insert your first name.']
@@ -32,10 +31,7 @@ const userSchema = new Schema(
     googleID: { type: String }
 
   },
-
-  //2nd arg -> additional options
   {
-    //adds createdAt & updatedAt
     timestamps:true
   }
 );
