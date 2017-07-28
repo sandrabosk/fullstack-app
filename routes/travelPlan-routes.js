@@ -22,13 +22,14 @@ router.post('/api/travelplans',
   (req, res, next)=>{
     const theTravelPlan = new TravelPlan ({
           planOwner: req.user,
+          name: req.body.name,
           country:req.body.country,
           city: req.body.city,
           startDate: req.body.startDate,
           endDate: req.body.endDate,
           tourAttractions:req.body.tourAttractions,
           accomodation: {
-            address: req.body.address,
+            acAddress: req.body.acAddress,
             expense: req.body.expense
           },
           transportation: req.body.transportation,
@@ -103,18 +104,20 @@ router.get('/api/travelplans/:id', (req, res, next) => {
       });
 });
 
-router.post('/travelplans/:id/edit', (req, res, next) => {
+router.post('/api/travelplans/:id/edit', (req, res, next) => {
     const travelplanId = req.params.id;
     const travelplanChanges = {
+      name:            req.body.name,
       country:         req.body.country,
       city:            req.body.city,
       startDate:       req.body.startDate,
       endDate:         req.body.endDate,
-      tourAttractions: req.body.tourAttractions,
-      accomodation:    req.body.accomodation,
+      accomodation: {
+        acAddress: req.body.acAddress,
+        expense: req.body.expense
+      },
       transportation:  req.body.transportation,
       tripPlanner:     req.user._id,
-      travelNotes:     req.body.travelNotes
         };
 
     TravelPlan.findByIdAndUpdate(travelplanId, travelplanChanges,

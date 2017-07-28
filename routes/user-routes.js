@@ -22,14 +22,14 @@ routerThingy.post('/api/profile/edit',
     const currentPassword = req.body.profileCurrentPassword;
     const newPassword = req.body.profileNewPassword;
 
-    User.findOne(
-      { email: email },
-      { email: 1 },
-      (err, foundUser) => {
-        if (err) {
-          next(err);
-          return;
-        }
+    // User.findOne(
+    //   { email: email },
+    //   { email: 1 },
+    //   (err, foundUser) => {
+    //     if (err) {
+    //       next(err);
+    //       return;
+    //     }
 
       // add updates from form
         req.user.firstName = req.body.firstName;
@@ -54,8 +54,8 @@ routerThingy.post('/api/profile/edit',
             }
       res.status(200).json(req.user);
         });
-      }
-    );
+    //   }
+    // );
   }
 );
 

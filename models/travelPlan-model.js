@@ -7,21 +7,22 @@ const MapThings = require('./map-model.js');
 
 const travelPlanSchema = new Schema(
   {
-    country: {type: String, required: [true, 'Which country did you travel to?']},
-    city: {type: String},
-    startDate: {type: Date, default: new Date()},
-    endDate: {type: Date, default: new Date()},
+    name: { type: String },
+    country: { type: String },
+    city: { type: String },
+    startDate: { type: Date, default: new Date() },
+    endDate: { type: Date, default: new Date() },
 
     tourAttractions: [{type: Schema.Types.ObjectId, ref: "MapThings"}],
 
     accomodation: {
-      address: { type: String },
+      acAddress: { type: String },
       expense: { type: Number }
     },
     transportation: { type: String },
 
     travelFriends:[{type: Schema.Types.ObjectId, ref: "User"}],
-    planOwner: {type: Schema.Types.ObjectId },
+    planOwner: { type: Schema.Types.ObjectId },
 
     travelNotes:{ type: String},
 
