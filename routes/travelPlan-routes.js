@@ -424,7 +424,6 @@ router.get('/travelplans/:id/notes/search', (req, res, next)=>{
   });
 });
 
-
 // ============== end search ========================
 // ============ find all users ====================
 router.get('/api/users', (req, res, next)=>{

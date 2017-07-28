@@ -23,20 +23,13 @@ authRoutes.post('/api/signup',
   }
 
   User.findOne(
-    //1st arg->criteria of the findOne(which documents)
-    // {username: signupUsername },
     { email: signupEmail },
-    //2nd arg -> projection (which fields)
-    // {username:1},
     { email:1 },
-
-    //3rd arg -> callback
     (err, foundUser) => {
       if (err){
         res.status(500).json({ message: 'Something went wrong.' });
         return;
       }
-
       //don't let user register if the username is taken
       if (foundUser){
         res.status(400).json({ message: 'The user is already registered with that email.' });
@@ -45,7 +38,6 @@ authRoutes.post('/api/signup',
         //encrypt the password
       const salt = bcrypt.genSaltSync(10); //signupPassword is the one user provided
       const hashPass = bcrypt.hashSync(signupPassword, salt);
-
 
         //create theUser
       const theUser = new User({
@@ -61,18 +53,16 @@ authRoutes.post('/api/signup',
           res.status(500).json({ message: 'Could not save the user in the database.' });
           return;
         }
+        //log in the user right after the signup
+      req.login(theUser, (err) => {
+          if (err) {
+            res.status(500).json({ message: 'Login went wrong.' });
+            return;
+          }
+          // res.status(200).json(theUser);
 
-//==================
-req.login(theUser, (err) => {
-      if (err) {
-        res.status(500).json({ message: 'Login went wrong.' });
-        return;
-      }
-      // res.status(200).json(theUser);
-
-      res.status(200).json(req.user);
-       });
-//==================
+          res.status(200).json(req.user);
+      });
     });
   });
 });
@@ -121,6 +111,7 @@ authRoutes.post('/api/logout', (req, res, next)=>{
   res.status(200).json({ message: 'Success.' });
 });
 // ================ END LOG OUT ================== //
+// ================ CHECK IF THE USER IS LOGGED IN ==== //
 
 authRoutes.get('/api/checklogin', (req, res, next) => {
   if (req.isAuthenticated()) {
@@ -138,22 +129,5 @@ function gtfoIfNotLogged (req, res, next) {
   }
   next();
 }
-
-// ================ SOCIAL LOG INS ================== //
-
-authRoutes.get('/auth/facebook',passport.authenticate('facebook'));
-authRoutes.get('/auth/facebook/callback', passport.authenticate('facebook',{
-  successRedirect: '/',
-  failureRedirect:'/login'
-}));
-
-authRoutes.get('/auth/google', passport.authenticate('google',{
-  scope: ['https://www.googleapis.com/auth/plus.login',
-          'https://www.googleapis.com/auth/plus.profile.emails.read']
-}));
-authRoutes.get('/auth/google/callback', passport.authenticate('google',{
-  successRedirect: '/',
-  failureRedirect:'/login'
-}));
 
 module.exports = authRoutes;

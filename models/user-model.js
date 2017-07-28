@@ -3,12 +3,8 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
-    firstName: { type: String,
-          // required: [true, 'Please insert your first name.']
-        },
-    lastName: {type: String,
-          // required: [true, 'Please insert your last name.']
-    },
+    firstName: { type: String },
+    lastName: {type: String },
     email: { type: String} ,
     encryptedPassword: { type: String,
     required: true
@@ -22,14 +18,7 @@ const userSchema = new Schema(
     fav: { type: String },
     about: { type: String },
     myTravelPlans:[],
-    myCustomPlans:[],
-
-    //login with facebook users
-    facebookID: { type: String },
-
-    //login with google users
-    googleID: { type: String }
-
+    myCustomPlans:[]
   },
   {
     timestamps:true
