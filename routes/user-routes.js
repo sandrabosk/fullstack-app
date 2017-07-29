@@ -86,9 +86,9 @@ routerThingy.post('/api/uploadphoto',loggedInApi, upload.single('file'), functio
        if (err) {
          return res.send(err);
        }
-      //  theUser.image = "https://whats-the-plan.herokuapp.com/images/user-photos/"+req.file.filename;
+       theUser.image = "https://whats-the-plan.herokuapp.com/images/user-photos/"+req.file.filename;
 
-       theUser.image = `${BASE_URL}/images/user-photos/`+req.file.filename;
+      //  theUser.image = `${BASE_URL}/images/user-photos/`+req.file.filename;
 
        theUser.save((err) => {
          if (err) {
