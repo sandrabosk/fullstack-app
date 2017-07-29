@@ -55,7 +55,7 @@ routerThingy.post('/api/profile/edit',
       }
       if (req.body.about) {
         req.user.about = req.body.about;
-      }    
+      }
         // req.user.gender = req.body.gender;
 
         if (currentPassword && newPassword && bcrypt.compareSync(currentPassword, req.user.encryptedPassword)) {
@@ -88,7 +88,7 @@ routerThingy.post('/api/uploadphoto',loggedInApi, upload.single('file'), functio
        }
       //  theUser.image = "https://whats-the-plan.herokuapp.com/images/user-photos/"+req.file.filename;
 
-       theUser.image = "http://localhost:3000/images/user-photos/"+req.file.filename;
+       theUser.image = `${BASE_URL}/images/user-photos/`+req.file.filename;
 
        theUser.save((err) => {
          if (err) {
