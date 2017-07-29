@@ -45,8 +45,8 @@ mapRouter.post('/maplocation',
         res.json(err);
         return;
       }
-      // res.json(mapLocations);
-res.render('travelplans/map-view.ejs', { maplocations: maplocations });
+      res.json(mapLocations);
+// res.render('travelplans/map-view.ejs', { maplocations: maplocations });
   });
 });
 
