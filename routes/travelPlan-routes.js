@@ -106,19 +106,46 @@ router.get('/api/travelplans/:id', (req, res, next) => {
 
 router.post('/api/travelplans/:id/edit', (req, res, next) => {
     const travelplanId = req.params.id;
-    const travelplanChanges = {
-      name:            req.body.name,
-      country:         req.body.country,
-      city:            req.body.city,
-      startDate:       req.body.startDate,
-      endDate:         req.body.endDate,
-      accomodation: {
-        acAddress: req.body.acAddress,
-        expense: req.body.expense
-      },
-      transportation:  req.body.transportation,
-      tripPlanner:     req.user._id,
-        };
+    const travelplanChanges = {};
+
+    if (req.body.name) {
+      travelplanChanges.name = req.body.name;
+    }
+    if (req.body.country) {
+      travelplanChanges.country = req.body.country;
+    }
+    if (req.body.city) {
+      travelplanChanges.city = req.body.city;
+    }
+    if (req.body.startDate) {
+      travelplanChanges.startDate = req.body.startDate;
+    }
+    if (req.body.endDate) {
+      travelplanChanges.endDate = req.body.endDate;
+    }
+    if (req.body.acAddress && req.body.expense) {
+      travelplanChanges.accomodation = {};
+      travelplanChanges.accomodation.acAddress = req.body.acAddress;
+      travelplanChanges.accomodation.expense = req.body.expense;
+    }
+    if (req.body.transportation) {
+      travelplanChanges.transportation = req.body.transportation;
+    }
+
+
+
+      // name:            req.body.name,
+      // country:         req.body.country,
+      // city:            req.body.city,
+      // startDate:       req.body.startDate,
+      // endDate:         req.body.endDate,
+      // accomodation: {
+      //   acAddress: req.body.acAddress,
+      //   expense: req.body.expense
+      // },
+      // transportation:  req.body.transportation,
+      // tripPlanner:     req.user._id,
+        // };
 
     TravelPlan.findByIdAndUpdate(travelplanId, travelplanChanges,
       (err, travelplan) => {

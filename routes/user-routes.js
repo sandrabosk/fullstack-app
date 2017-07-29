@@ -14,7 +14,9 @@ const routerThingy = express.Router();
 routerThingy.post('/api/profile/edit',
   loggedInApi,
   (req, res, next) => {
-    console.log(req.user);
+    console.log('dkhakhdkjahkjdhakjhd');
+    console.log(req.body);
+    console.log('-------------------');
 
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
@@ -22,24 +24,39 @@ routerThingy.post('/api/profile/edit',
     const currentPassword = req.body.profileCurrentPassword;
     const newPassword = req.body.profileNewPassword;
 
-    // User.findOne(
-    //   { email: email },
-    //   { email: 1 },
-    //   (err, foundUser) => {
-    //     if (err) {
-    //       next(err);
-    //       return;
-    //     }
+    User.findOne(
+      { email: email },
+      { email: 1 },
+      (err, foundUser) => {
+        if (err) {
+          next(err);
+          return;
+        }
 
       // add updates from form
+      if (req.body.firstName) {
         req.user.firstName = req.body.firstName;
+      }
+      if (req.body.lastName) {
         req.user.lastName = req.body.lastName;
+      }
+      if (req.body.email) {
         req.user.email= req.body.email;
+      }
+      if (req.body.dob) {
         req.user.dob = req.body.dob;
-        req.user.gender = req.body.gender;
+      }
+      if (req.body.profession) {
         req.user.profession = req.body.profession;
+      }
+
+      if (req.body.fav) {
         req.user.fav = req.body.fav;
+      }
+      if (req.body.about) {
         req.user.about = req.body.about;
+      }    
+        // req.user.gender = req.body.gender;
 
         if (currentPassword && newPassword && bcrypt.compareSync(currentPassword, req.user.encryptedPassword)) {
           const salt = bcrypt.genSaltSync(10);
@@ -54,8 +71,8 @@ routerThingy.post('/api/profile/edit',
             }
       res.status(200).json(req.user);
         });
-    //   }
-    // );
+      }
+    );
   }
 );
 
@@ -69,6 +86,7 @@ routerThingy.post('/api/uploadphoto',loggedInApi, upload.single('file'), functio
        if (err) {
          return res.send(err);
        }
+      //  theUser.image = "https://whats-the-plan.herokuapp.com/images/user-photos/"+req.file.filename;
 
        theUser.image = "http://localhost:3000/images/user-photos/"+req.file.filename;
 

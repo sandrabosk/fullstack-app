@@ -69,13 +69,13 @@ authRoutes.post('/api/signup',
 
 // ============ LOG IN ================ //
 
-authRoutes.get('/login',
-    ensure.ensureNotLoggedIn('/'),
-    (req, res, next) =>{
-  res.render('auth/login-view.ejs', {
-    errorMessage: req.flash('error')
-  });
-});
+// authRoutes.get('/login',
+//     ensure.ensureNotLoggedIn('/'),
+//     (req, res, next) =>{
+//   res.render('auth/login-view.ejs', {
+//     errorMessage: req.flash('error')
+//   });
+// });
 
 authRoutes.post('/api/login',(req,res,next)=>{
     passport.authenticate('local',(err, theUser, failureDetails)=>{
@@ -107,6 +107,7 @@ authRoutes.post('/api/login',(req,res,next)=>{
 // ================ LOG OUT ================== //
 
 authRoutes.post('/api/logout', (req, res, next)=>{
+  console.log('trying to log out=========================');
   req.logout();
   res.status(200).json({ message: 'Success.' });
 });

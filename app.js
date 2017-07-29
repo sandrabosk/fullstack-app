@@ -17,8 +17,8 @@ require('dotenv').config();
 require('./config/passport-config.js');
 
 
-mongoose.connect('mongodb://localhost/planner-app'); // this is hardcoded that's why needs to be replaced
-// mongoose.connect(process.env.MONGODB_URI);
+// mongoose.connect('mongodb://localhost/planner-app'); // this is hardcoded that's why needs to be replaced
+mongoose.connect(process.env.MONGODB_URI);
 const app = express();
 
 // view engine setup

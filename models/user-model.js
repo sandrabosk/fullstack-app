@@ -13,7 +13,7 @@ const userSchema = new Schema(
       default: ''
     },
     dob: {type: Date, default: new Date()},
-    gender: { type: String },
+    // gender: { type: String },
     profession: { type: String },
     fav: { type: String },
     about: { type: String },
